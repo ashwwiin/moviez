@@ -7,10 +7,12 @@ export async function GET() {
   try {
     await connectToDatabase();
 
-    // ✅ Use fallback for base URL
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+    // ✅ Correct: use NEXT_PUBLIC_APP_URL (set in Vercel) or fallback to localhost
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
-    // 1️⃣ Fetch movie files from your Drive API
+    console.log(`🌐 Syncing movies from: ${baseUrl}`);
+
+    // 1️⃣ Fetch movie files from Google Drive API endpoint
     const driveRes = await axios.get(`${baseUrl}/api/testdrive`);
     const driveFiles = driveRes.data.files || [];
 
@@ -18,14 +20,14 @@ export async function GET() {
       f.name.replace(/\.[^/.]+$/, "")
     );
 
-    // 2️⃣ Remove movies not present in Drive anymore
+    // 2️⃣ Remove any movies that no longer exist in Drive
     await Movie.deleteMany({ name: { $nin: currentFileNames } });
 
-    // 3️⃣ Loop through and update/insert movie details
+    // 3️⃣ For each file, fetch TMDB info and update/insert in MongoDB
     for (const file of driveFiles) {
       const movieName = file.name.replace(/\.[^/.]+$/, "");
 
-      // Search TMDB for movie info
+      // Search TMDB for details
       const tmdbRes = await axios.get("https://api.themoviedb.org/3/search/movie", {
         params: {
           api_key: process.env.TMDB_API_KEY,
@@ -39,7 +41,7 @@ export async function GET() {
         continue;
       }
 
-      // Fetch cast details
+      // Get cast info
       const castRes = await axios.get(
         `https://api.themoviedb.org/3/movie/${tmdb.id}/credits`,
         { params: { api_key: process.env.TMDB_API_KEY } }
@@ -53,7 +55,7 @@ export async function GET() {
           : null,
       }));
 
-      // Upsert the movie record in MongoDB
+      // Upsert movie document in DB
       await Movie.findOneAndUpdate(
         { name: movieName },
         {
