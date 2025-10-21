@@ -1,20 +1,21 @@
-// app/movies/[name]/page.js
 import { notFound } from "next/navigation";
 import { connectToDatabase } from "../../../../lib/mongodb";
 import Movie from "../../../../models/Movie";
 import MovieDetailClient from "./MovieDetailClient";
 
+export const dynamic = "force-dynamic"; // ensures fresh data
+export const revalidate = 0;
+
 export default async function MovieDetailPage({ params }) {
-  // ✅ Destructure using await to satisfy App Router
-  const { name } = await params; // or just use params directly if not needed
-  const movieName = decodeURIComponent(name);
+  // ✅ Await params if Next.js tells you to
+  const resolvedParams = await params; // <--- this fixes the error
+  const movieName = decodeURIComponent(resolvedParams.name);
 
   await connectToDatabase();
   let movie = await Movie.findOne({ name: movieName }).lean();
 
   if (!movie) return notFound();
 
-  // Convert MongoDB document to plain JS object
   movie = {
     ...movie,
     _id: movie._id.toString(),

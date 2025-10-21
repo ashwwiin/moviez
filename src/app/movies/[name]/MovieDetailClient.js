@@ -1,8 +1,19 @@
 "use client";
 
-import Header from "../../../../components/Header"; // adjust path if needed
+import { useEffect } from "react";
+import Header from "../../../../components/Header";
 
 export default function MovieDetailClient({ movie }) {
+  // 👇 Add this effect to refresh once when page first loads
+  useEffect(() => {
+    if (!sessionStorage.getItem("movieRefreshed")) {
+      sessionStorage.setItem("movieRefreshed", "true");
+      window.location.reload();
+    } else {
+      sessionStorage.removeItem("movieRefreshed");
+    }
+  }, []);
+
   const getDriveEmbedUrl = (link) => {
     const match = link.match(/\/d\/([a-zA-Z0-9_-]+)/);
     if (match) return `https://drive.google.com/file/d/${match[1]}/preview`;
@@ -14,11 +25,9 @@ export default function MovieDetailClient({ movie }) {
 
   return (
     <div className="min-h-screen bg-black text-white">
-      {/* Header */}
       <Header />
 
-      {/* Main Content */}
-      <div className="pt-20 p-6 flex flex-col items-center"> {/* Added pt-20 to push content below header */}
+      <div className="pt-20 p-6 flex flex-col items-center">
         <div className="w-full md:w-4/5 flex flex-col md:flex-row gap-6">
           {/* Video Player */}
           <div className="md:w-1/2 w-full rounded-lg shadow-lg overflow-hidden relative pt-[56.25%]">
@@ -33,7 +42,7 @@ export default function MovieDetailClient({ movie }) {
             )}
           </div>
 
-          {/* Details: Poster, Info, Cast */}
+          {/* Details */}
           <div className="md:w-1/2 flex flex-col gap-4">
             <div className="flex gap-4">
               <img

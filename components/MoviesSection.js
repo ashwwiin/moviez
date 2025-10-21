@@ -12,16 +12,14 @@ export default function MoviesSection() {
       try {
         const res = await fetch("/api/movies");
         const data = await res.json();
-        console.log("Fetched movies from DB:", data);
         setMovies(data.status === "success" ? data.movies : []);
       } catch (err) {
-        console.error("Failed to fetch movies:", err);
+        console.error(err);
         setMovies([]);
       } finally {
         setLoading(false);
       }
     }
-
     fetchMovies();
   }, []);
 
@@ -31,10 +29,12 @@ export default function MoviesSection() {
     return <p className="text-white text-center mt-6">No movies found.</p>;
 
   return (
-    <section className="flex flex-wrap gap-2 p-4 mt-20 mb-10">
-      {movies.map((movie) => (
-        <MovieCard key={movie._id} file={movie}/>
-      ))}
+    <section className="p-4 mt-6 mb-10">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        {movies.map((movie) => (
+          <MovieCard key={movie._id} file={movie} />
+        ))}
+      </div>
     </section>
   );
 }
