@@ -16,7 +16,7 @@ export default function DashboardClient({ user }) {
   return (
     <>
       <Header />
-      <main className="mt-20">
+      <main className="w-full min-h-screen bg-black">
         <MoviesSection />
       </main>
     </>

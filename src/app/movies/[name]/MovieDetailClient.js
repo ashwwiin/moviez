@@ -2,9 +2,9 @@
 
 import { useEffect } from "react";
 import Header from "../../../../components/Header";
+import FooterInside from "../../../../components/FooterInside";
 
 export default function MovieDetailClient({ movie }) {
-  // 👇 Add this effect to refresh once when page first loads
   useEffect(() => {
     if (!sessionStorage.getItem("movieRefreshed")) {
       sessionStorage.setItem("movieRefreshed", "true");
@@ -15,69 +15,95 @@ export default function MovieDetailClient({ movie }) {
   }, []);
 
   const getDriveEmbedUrl = (link) => {
-    const match = link.match(/\/d\/([a-zA-Z0-9_-]+)/);
-    if (match) return `https://drive.google.com/file/d/${match[1]}/preview`;
-    return null;
+    const match = link?.match(/\/d\/([a-zA-Z0-9_-]+)/);
+    return match ? `https://drive.google.com/file/d/${match[1]}/preview` : null;
   };
 
   const posterUrl = movie.poster || "/sumathivalavu.avif";
   const videoUrl = getDriveEmbedUrl(movie.webViewLink);
 
+  // Filter out cast without valid profile_path
+  const filteredCast = movie.cast?.filter((c) => c.profile_path) || [];
+
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-black to-black text-white">
       <Header />
 
-      <div className="pt-20 p-6 flex flex-col items-center">
-        <div className="w-full md:w-4/5 flex flex-col md:flex-row gap-6">
-          {/* Video Player */}
-          <div className="md:w-1/2 w-full rounded-lg shadow-lg overflow-hidden relative pt-[56.25%]">
-            {videoUrl && (
+      <div className="pt-24 px-4 sm:px-8 lg:px-16 pb-16">
+        <div className="flex flex-col lg:flex-row items-start gap-12">
+          {/* 🎥 Video Section */}
+          <div className="relative w-full lg:w-2/3 aspect-video rounded-2xl overflow-hidden shadow-2xl border border-zinc-800">
+            {videoUrl ? (
               <iframe
                 src={videoUrl}
-                className="absolute top-0 left-0 w-full h-full rounded-lg"
+                className="absolute top-0 left-0 w-full h-full rounded-2xl"
                 frameBorder="0"
                 allow="autoplay; encrypted-media"
                 allowFullScreen
               />
+            ) : (
+              <div className="absolute inset-0 flex items-center justify-center bg-zinc-900">
+                <p className="text-gray-500">🎬 Trailer not available</p>
+              </div>
             )}
           </div>
 
-          {/* Details */}
-          <div className="md:w-1/2 flex flex-col gap-4">
-            <div className="flex gap-4">
+          {/* 🎬 Movie Details */}
+          <div className="w-full lg:w-1/3 flex flex-col gap-6">
+            <div className="flex gap-6">
               <img
                 src={posterUrl}
                 alt={movie.name}
-                className="w-32 h-48 rounded-lg shadow-lg object-cover"
+                className="w-36 sm:w-44 rounded-xl shadow-xl object-cover border border-zinc-700 hover:scale-105 transition-transform duration-300"
               />
               <div className="flex-1">
-                <h1 className="text-3xl font-bold">{movie.name}</h1>
-                <p className="text-gray-300 text-sm">{movie.overview}</p>
-                <p className="mt-2 text-sm">
-                  <strong>Release Date:</strong> {movie.release_date}
+                <h1 className="text-4xl font-extrabold mb-2 leading-tight">
+                  {movie.name}
+                </h1>
+                <p className="text-gray-300 text-sm sm:text-base leading-snug line-clamp-5">
+                  {movie.overview || "No description available."}
                 </p>
-                <p className="text-sm">
-                  <strong>Rating:</strong> {movie.rating} / 10
-                </p>
+
+                <div className="mt-4 space-y-1 text-sm text-gray-400">
+                  <p>
+                    <span className="font-semibold text-gray-200">
+                      Release Date:
+                    </span>{" "}
+                    {movie.release_date || "N/A"}
+                  </p>
+                  <p>
+                    <span className="font-semibold text-gray-200">Rating:</span>{" "}
+                    {movie.rating ? `${movie.rating}/10` : "N/A"}
+                  </p>
+                </div>
               </div>
             </div>
 
-            {/* Cast */}
-            {movie.cast && movie.cast.length > 0 && (
-              <div className="mt-4">
-                <h2 className="text-xl font-semibold mb-2">Cast</h2>
-                <div className="flex flex-wrap gap-4">
-                  {movie.cast.map((c) => (
-                    <div key={c.name} className="w-20 text-center">
-                      {c.profile_path && (
+            {/* 🌟 Cast Section */}
+            {filteredCast.length > 0 && (
+              <div>
+                <h2 className="text-2xl font-semibold mb-4 border-b border-zinc-700 pb-2">
+                  Cast
+                </h2>
+                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
+                  {filteredCast.map((c) => (
+                    <div
+                      key={c._id || c.name}
+                      className="group flex flex-col items-center text-center transition-transform duration-300 hover:scale-105"
+                    >
+                      <div className="w-20 h-24 sm:w-24 sm:h-28 overflow-hidden rounded-lg border border-zinc-700 shadow-md group-hover:border-red-500">
                         <img
                           src={c.profile_path}
                           alt={c.name}
-                          className="rounded-lg w-full h-24 object-cover"
+                          className="w-full h-full object-cover"
                         />
-                      )}
-                      <p className="text-xs text-white mt-1 truncate">{c.name}</p>
-                      <p className="text-xs text-gray-300 truncate">{c.character}</p>
+                      </div>
+                      <p className="text-xs sm:text-sm mt-1 font-medium truncate w-full">
+                        {c.name}
+                      </p>
+                      <p className="text-xs text-gray-400 truncate w-full">
+                        {c.character}
+                      </p>
                     </div>
                   ))}
                 </div>
@@ -86,6 +112,10 @@ export default function MovieDetailClient({ movie }) {
           </div>
         </div>
       </div>
+
+      {/* 🌈 Footer Gradient */}
+      <div className="h-20 bg-gradient-to-t from-black via-transparent to-transparent" />
+      <FooterInside />
     </div>
   );
 }
