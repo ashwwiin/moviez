@@ -1,4 +1,5 @@
 "use client";
+
 import Link from "next/link";
 import { useState } from "react";
 
@@ -19,13 +20,19 @@ export default function Signup() {
       const res = await fetch("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ fullName, email, password }),
+        body: JSON.stringify({
+          name: fullName, // map fullName → name
+          email,
+          password,
+        }),
       });
 
       const data = await res.json();
       if (!res.ok) setMessage(data.error || "Signup failed");
       else {
-        setMessage("✅ Signup successful! You can now log in.");
+        setMessage(
+          "✅ Signup successful! Check your email to verify your account."
+        );
         setFullName("");
         setEmail("");
         setPassword("");
@@ -56,7 +63,9 @@ export default function Signup() {
       </div>
 
       <div className="relative z-10 bg-black/70 p-8 rounded-lg shadow-lg w-full max-w-md animate-slideIn">
-        <h1 className="text-3xl font-bold mb-6 text-center text-white">Sign Up</h1>
+        <h1 className="text-3xl font-bold mb-6 text-center text-white">
+          Sign Up
+        </h1>
         <form className="space-y-4" onSubmit={handleSubmit}>
           <input
             type="text"

@@ -1,24 +1,18 @@
 import mongoose from "mongoose";
 
-const MovieSchema = new mongoose.Schema(
+const movieSchema = new mongoose.Schema(
   {
-    name: { type: String, required: true, unique: true },
+    tmdbId: { type: Number, required: true, unique: true },
+    name: { type: String, required: true },
+    overview: String,
+    poster: String,
+    rating: Number,
+    release_date: String,
     fileId: String,
     webViewLink: String,
-    tmdbId: Number,
-    poster: String,
-    overview: String,
-    release_date: String,
-    rating: Number,
-    cast: [
-      {
-        name: String,
-        character: String,
-        profile_path: String,
-      },
-    ],
+    cast: Array,
   },
   { timestamps: true }
 );
 
-export default mongoose.models.Movie || mongoose.model("Movie", MovieSchema);
+export default mongoose.models.Movie || mongoose.model("Movie", movieSchema);
