@@ -26,10 +26,10 @@ export async function GET() {
       const movieNameRaw = file.name.replace(/\.[^/.]+$/, "");
       console.log(`🎬 Processing: ${movieNameRaw}`);
 
-      // 🧹 Remove year in parentheses for TMDb search
+      // Remove year in parentheses for TMDb search
       const cleanName = movieNameRaw.replace(/\s*\(\d{4}\)\s*$/, "").trim();
 
-      // 🔍 Search TMDb
+      // TMDb search
       const tmdbSearchRes = await axios.get(
         "https://api.themoviedb.org/3/search/movie",
         {
@@ -47,7 +47,7 @@ export async function GET() {
         continue;
       }
 
-      // 🆕 Sort by release date (newest first)
+      // Sort by release date (newest first)
       results = results
         .filter((m) => m.release_date)
         .sort(
@@ -56,25 +56,23 @@ export async function GET() {
             new Date(a.release_date).getTime()
         );
 
-      // ✅ Pick the newest movie
+      // Pick the newest movie
       const tmdb = results[0];
 
-      // 🧾 Extract release year
+      // Extract release year
       const releaseYear = tmdb.release_date
         ? new Date(tmdb.release_date).getFullYear()
         : "Unknown";
 
-      // ✅ Store as “Title (Year)”
       const formattedName = `${tmdb.title} (${releaseYear})`;
 
-      // 🎭 Fetch cast
+      // Fetch cast
       let cast = [];
       try {
         const castRes = await axios.get(
           `https://api.themoviedb.org/3/movie/${tmdb.id}/credits`,
           { params: { api_key: process.env.TMDB_API_KEY } }
         );
-
         cast = castRes.data.cast?.slice(0, 8).map((c) => ({
           name: c.name,
           character: c.character,
@@ -83,10 +81,26 @@ export async function GET() {
             : null,
         }));
       } catch (castErr) {
-        console.warn(`⚠️ Failed to fetch cast for "${formattedName}":`, castErr.message);
+        console.warn(
+          `⚠️ Failed to fetch cast for "${formattedName}":`,
+          castErr.message
+        );
       }
 
-      // 💾 Upsert movie by TMDb ID
+      // Check if movie already exists by TMDb ID
+      const existingMovie = await Movie.findOne({ tmdbId: tmdb.id });
+
+      if (existingMovie) {
+        const existingRelease = new Date(existingMovie.release_date);
+        const newRelease = new Date(tmdb.release_date);
+
+        if (newRelease <= existingRelease) {
+          console.log(`⏭ Skipping older or same movie: ${formattedName}`);
+          continue; // Skip older or same movie
+        }
+      }
+
+      // Upsert movie (insert if new, update if newer)
       await Movie.findOneAndUpdate(
         { tmdbId: tmdb.id },
         {
@@ -98,7 +112,7 @@ export async function GET() {
             ? `https://image.tmdb.org/t/p/w500${tmdb.poster_path}`
             : "",
           overview: tmdb.overview || "No overview available.",
-          release_date: tmdb.release_date || "Unknown",
+          release_date: tmdb.release_date,
           rating: tmdb.vote_average || 0,
           cast,
         },
@@ -108,9 +122,15 @@ export async function GET() {
       console.log(`✅ Synced: ${formattedName} (TMDb ID: ${tmdb.id})`);
     }
 
-    return Response.json({ message: "✅ Movies synced successfully" });
+    return new Response(
+      JSON.stringify({ message: "✅ Movies synced successfully" }),
+      { status: 200 }
+    );
   } catch (err) {
     console.error("❌ Sync error:", err.message);
-    return Response.json({ error: "Failed to sync movies" }, { status: 500 });
+    return new Response(
+      JSON.stringify({ error: "Failed to sync movies" }),
+      { status: 500 }
+    );
   }
 }
