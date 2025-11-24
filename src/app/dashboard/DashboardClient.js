@@ -15,10 +15,11 @@ export default function DashboardClient({ user }) {
 
   return (
     <>
+      
+    <main className="w-full min-h-screen bg-black flex flex-col">
       <Header />
-      <main className="w-full min-h-screen bg-black">
-        <MoviesSection />
-      </main>
+      <MoviesSection />
+    </main>
     </>
   );
 }

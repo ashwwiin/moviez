@@ -1,14 +1,12 @@
 import mongoose from "mongoose";
 
-const userSchema = new mongoose.Schema(
-  {
-    name: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
-    emailVerified: { type: Boolean, default: false }, // email verification
-    isApproved: { type: Boolean, default: false }, // admin approval
-  },
-  { timestamps: true }
-);
+const UserSchema = new mongoose.Schema({
+  name: String,
+  email: { type: String, unique: true },
+  password: String,
+  emailVerified: { type: Boolean, default: false },
+  isAdmin: { type: Boolean, default: false },
+  isApproved: { type: Boolean, default: false },
+}, { timestamps: true });
 
-export default mongoose.models.User || mongoose.model("User", userSchema);
+export default mongoose.models.User || mongoose.model("User", UserSchema);

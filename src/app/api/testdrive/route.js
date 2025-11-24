@@ -3,7 +3,7 @@ import { listDriveFiles } from "../../../../lib/googleDrive";
 
 export async function GET() {
   try {
-    const files = await listDriveFiles(); // Get Google Drive movies
+    const files = await listDriveFiles(); // Fetch Google Drive video files
 
     const TMDB_API_KEY = process.env.TMDB_API_KEY;
 
@@ -12,11 +12,18 @@ export async function GET() {
       files.map(async (file) => {
         try {
           const nameWithoutExt = file.name.replace(/\.[^/.]+$/, ""); // Remove extension
+
           const tmdbRes = await fetch(
             `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(
               nameWithoutExt
             )}`
           );
+
+          if (!tmdbRes.ok) {
+            console.warn(`TMDb search failed for ${nameWithoutExt}`);
+            return { ...file, tmdb: null };
+          }
+
           const tmdbData = await tmdbRes.json();
           const movie = tmdbData.results?.[0] || null;
 
@@ -33,6 +40,7 @@ export async function GET() {
               : null,
           };
         } catch (err) {
+          console.error("TMDb mapping error:", err.message);
           return { ...file, tmdb: null };
         }
       })
