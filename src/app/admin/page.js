@@ -108,8 +108,8 @@ export default function AdminDashboard() {
   }));
 
   const verifiedPieData = [
-    { name: "Verified", value: users.filter((u) => u.emailVerified).length },
-    { name: "Unverified", value: users.filter((u) => !u.emailVerified).length },
+    { name: "Approved", value: users.filter((u) => u.isApproved).length },
+    { name: "Pending", value: users.filter((u) => !u.isApproved).length },
   ];
 
   const pendingBarData = [{ name: "Pending Users", count: pendingUsers.length }];
@@ -207,7 +207,7 @@ export default function AdminDashboard() {
               </div>
 
               <div className="bg-gray-900 rounded-lg p-6 shadow-lg">
-                <h3 className="text-lg font-semibold mb-4">Verified vs Unverified Users</h3>
+                <h3 className="text-lg font-semibold mb-4">Approved vs Pending Users</h3>
                 <ResponsiveContainer width="100%" height={250}>
                   <PieChart>
                     <Pie
@@ -277,7 +277,6 @@ export default function AdminDashboard() {
                   <tr>
                     <th className="border-b border-gray-700 p-3">Name</th>
                     <th className="border-b border-gray-700 p-3">Email</th>
-                    <th className="border-b border-gray-700 p-3">Verified</th>
                     <th className="border-b border-gray-700 p-3">Approved</th>
                   </tr>
                 </thead>
@@ -286,7 +285,6 @@ export default function AdminDashboard() {
                     <tr key={u._id} className="hover:bg-gray-800">
                       <td className="p-3">{u.name}</td>
                       <td className="p-3">{u.email}</td>
-                      <td className="p-3">{u.emailVerified ? "✅" : "❌"}</td>
                       <td className="p-3">{u.isApproved ? "✅" : "❌"}</td>
                     </tr>
                   ))}

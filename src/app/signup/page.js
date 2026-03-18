@@ -31,7 +31,7 @@ export default function Signup() {
       if (!res.ok) setMessage(data.error || "Signup failed");
       else {
         setMessage(
-          "✅ Signup successful! Check your email to verify your account."
+          "✅ Signup successful! Your account is pending admin approval."
         );
         setFullName("");
         setEmail("");

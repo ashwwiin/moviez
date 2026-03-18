@@ -18,9 +18,7 @@ export async function POST(req) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    if (!user.emailVerified) {
-      return NextResponse.json({ error: "User email is not verified yet" }, { status: 400 });
-    }
+
 
     if (user.isApproved) {
       return NextResponse.json({ message: "User is already approved" }, { status: 200 });

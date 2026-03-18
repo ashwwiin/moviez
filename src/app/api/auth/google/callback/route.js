@@ -49,7 +49,8 @@ export async function GET(req) {
     }
 
     // Set access token in cookie
-    const response = NextResponse.redirect("http://localhost:3000/dashboard");
+    const dashboardUrl = `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/dashboard`;
+    const response = NextResponse.redirect(dashboardUrl);
     response.cookies.set("tokens", access_token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",

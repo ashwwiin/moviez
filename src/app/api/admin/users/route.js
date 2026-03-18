@@ -6,7 +6,7 @@ import { NextResponse } from "next/server";
 export async function GET() {
   try {
     await connectToDatabase();
-    const users = await User.find({}, "name email emailVerified isApproved isAdmin createdAt").sort({ createdAt: -1 });
+    const users = await User.find({}, "name email isApproved isAdmin createdAt").sort({ createdAt: -1 });
     return NextResponse.json({ users });
   } catch (err) {
     console.error(err);

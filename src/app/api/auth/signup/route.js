@@ -25,36 +25,13 @@ export async function POST(req) {
       name,
       email,
       password: hashedPassword,
-      emailVerified: false,
-      isApproved: false,
+      isApproved: false, // Wait for admin approval
     });
 
     await newUser.save();
 
-    // Send verification email
-    const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: Number(process.env.SMTP_PORT),
-      secure: false,
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      },
-    });
-
-    const verifyLink = `${process.env.NEXT_PUBLIC_APP_URL}/verify-email?email=${encodeURIComponent(email)}`;
-
-    await transporter.sendMail({
-      from: `"Moviez" <moviez258963@gmail.com>`, // verified sender
-      to: email,
-      subject: "Verify your Moviez account",
-      html: `<p>Hello ${name},</p>
-             <p>Click below to verify your email:</p>
-             <a href="${verifyLink}">Verify Email</a>`,
-    });
-
     return NextResponse.json(
-      { message: "✅ Signup successful! Check your email to verify." },
+      { message: "✅ Signup successful! Your account is pending admin approval." },
       { status: 201 }
     );
 

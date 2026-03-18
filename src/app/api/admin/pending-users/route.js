@@ -6,7 +6,7 @@ import { NextResponse } from "next/server";
 export async function GET() {
   try {
     await connectToDatabase();
-    const users = await User.find({ emailVerified: true, isApproved: false }).select("name email");
+    const users = await User.find({ isApproved: false }).select("name email");
     return NextResponse.json({ users });
   } catch (err) {
     console.error(err);

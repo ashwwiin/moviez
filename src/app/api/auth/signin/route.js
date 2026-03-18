@@ -14,13 +14,7 @@ export async function POST(req) {
     if (!user)
       return NextResponse.json({ error: "User not found" }, { status: 404 });
 
-    // ✅ Check if email is verified
-    if (!user.emailVerified) {
-      return NextResponse.json(
-        { error: "Please verify your email before signing in" },
-        { status: 403 }
-      );
-    }
+
 
     // ✅ Check if admin has approved
     if (!user.isApproved) {
