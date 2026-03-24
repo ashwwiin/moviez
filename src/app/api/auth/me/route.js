@@ -1,12 +1,23 @@
+import { cookies } from "next/headers";
 import { verifyJwt } from "../../../../../lib/jwt";
 import { NextResponse } from "next/server";
 
-export async function GET(req) {
-  const token = req.cookies.get("token")?.value;
-  if (!token) return NextResponse.json({ error: "Not logged in" }, { status: 401});
+export async function GET() {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value;
 
-  const user = verifyJwt(token);
-  if (!user) return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+  if (!token) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
-  return NextResponse.json({ user });
+  const decoded = verifyJwt(token);
+  if (!decoded) {
+    return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+  }
+
+  // Return limited info
+  return NextResponse.json({
+    email: decoded.email,
+    isAdmin: decoded.isAdmin,
+  });
 }

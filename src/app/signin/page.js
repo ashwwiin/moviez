@@ -47,43 +47,48 @@ export default function Signin() {
   };
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center bg-black">
-      <header className="fixed top-0 left-0 w-full z-50 flex items-center justify-between px-6 py-4">
+    <div className="w-full min-h-screen flex items-center justify-center font-sans text-white selection:bg-red-500/30">
+      <header className="fixed top-0 left-0 w-full z-50 flex items-center justify-between px-6 sm:px-12 py-6 bg-gradient-to-b from-black/90 to-transparent">
         <div className="flex items-center">
-          <img src="/moviez2.png" alt="Moviez Logo" width={60} height={60} />
+          <Link href="/">
+            <img src="/moviez2.png" alt="Moviez Logo" width={55} height={55} className="drop-shadow-2xl hover:scale-105 transition-transform" />
+          </Link>
         </div>
       </header>
 
-      <div className="absolute top-0 left-0 w-full h-full">
+      {/* Cinematic Background */}
+      <div className="fixed top-0 left-0 w-full h-screen bg-black z-0 overflow-hidden">
         <img
           src="/bgimage1.jpg"
-          alt="Background"
-          className="w-full h-full object-cover"
+          alt="Landing Background"
+          className="w-full h-full object-cover opacity-40 scale-105 animate-[pulse_10s_ease-in-out_infinite]"
         />
-        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-black/80 via-black/70 to-black/90" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-transparent to-black/90" />
+        <div className="absolute top-0 left-0 w-full h-[500px] bg-gradient-to-b from-black via-transparent to-transparent opacity-90" />
       </div>
 
-      <div className="relative z-10 bg-black/70 p-8 rounded-lg shadow-lg w-full max-w-md animate-slideIn">
-        <h1 className="text-3xl font-bold mb-6 text-center text-white">Sign In</h1>
+      <div className="relative z-10 bg-black/60 backdrop-blur-xl border border-white/10 p-10 sm:p-12 rounded-3xl shadow-2xl w-full max-w-md animate-slideIn">
+        <h1 className="text-4xl font-black mb-8 text-center text-white tracking-tight">Sign In</h1>
         <form className="space-y-4" onSubmit={handleSubmit}>
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-4 py-2 rounded bg-white-800 text-white placeholder-gray-400 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-red-600"
-            required
-          />
-
-          <div className="relative">
             <input
-              type={showPassword ? "text" : "password"}
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2 rounded bg-white-800 text-white placeholder-gray-400 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-red-600"
+              type="email"
+              placeholder="Email address"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-5 py-3.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-neutral-500 focus:outline-none focus:border-red-500/50 focus:bg-white/10 transition-all"
               required
             />
+
+          <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-5 py-3.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-neutral-500 focus:outline-none focus:border-red-500/50 focus:bg-white/10 transition-all"
+                required
+              />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
@@ -126,14 +131,14 @@ export default function Signin() {
               id="rememberMe"
               className="mr-2"
             />
-            <label htmlFor="rememberMe" className="text-white text-sm">
+            <label htmlFor="rememberMe" className="text-neutral-300 text-sm font-medium">
               Remember Me
             </label>
           </div>
 
           <button
             type="submit"
-            className="w-full py-2 bg-red-600 hover:bg-red-700 transition duration-300 rounded text-white font-semibold"
+            className="w-full py-4 bg-red-600 hover:bg-red-500 transition-all duration-300 rounded-xl text-white font-black text-lg shadow-[0_0_20px_rgba(239,68,68,0.3)] hover:shadow-[0_0_30px_rgba(239,68,68,0.5)] active:scale-95"
             disabled={loading}
           >
             {loading ? "Signing in..." : "Sign In"}
@@ -142,10 +147,10 @@ export default function Signin() {
 
         {message && <p className="text-center text-white mt-4">{message}</p>}
 
-        <p className="text-sm text-gray-400 mt-4 text-center">
-          Don't have an account?{" "}
-          <Link href="/signup" className="text-red-500 hover:underline">
-            Sign Up
+        <p className="text-sm text-neutral-400 mt-6 text-center font-medium">
+          New to Moviez?{" "}
+          <Link href="/signup" className="text-white font-bold hover:text-red-500 hover:underline transition-colors">
+            Sign up now.
           </Link>
         </p>
       </div>

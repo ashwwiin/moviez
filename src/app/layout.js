@@ -12,8 +12,13 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Moviez - Your Ultimate Movie Hub",
-  
+  title: "Moviez",
+  description: "Next-generation streaming platform",
+  icons: {
+    icon: "/moviez2.png",
+    shortcut: "/moviez2.png",
+    apple: "/moviez2.png",
+  },
 };
 
 export default function RootLayout({ children }) {

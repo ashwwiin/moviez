@@ -28,7 +28,7 @@ export async function POST(req) {
     if (!isMatch)
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
 
-    const token = signJwt({ sub: user._id, email: user.email });
+    const token = signJwt({ sub: user._id, email: user.email, isAdmin: user.isAdmin });
 
     // Set cookie
     const res = NextResponse.json({ message: "Login successful" });
