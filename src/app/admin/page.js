@@ -16,7 +16,8 @@ import {
   Activity,
   Menu,
   X,
-  Trash2
+  Trash2,
+  RefreshCw
 } from "lucide-react";
 
 import {
@@ -60,6 +61,7 @@ export default function AdminDashboard() {
   const [message, setMessage] = useState("");
   const [activeTab, setActiveTab] = useState("allUsers");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
 
   const fetchData = async () => {
     setLoading(true);
@@ -144,9 +146,35 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleSyncMovies = async () => {
+    if (!confirm("Start full Google Drive to TMDb sync? This process takes time depending on your catalog size.")) return;
+    setIsSyncing(true);
+    setMessage("");
+    try {
+      const res = await fetch("/api/syncMovies", { method: "GET" });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Sync failed");
+      setMessage(`✅ ${data.message || "Sync successful"}`);
+      fetchData(); // Refresh the movies table
+    } catch (err) {
+      console.error(err);
+      setMessage("❌ Server error during movie sync");
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
   useEffect(() => {
     fetchData();
   }, []);
+
+  // Auto-dismiss notifications after 3 seconds
+  useEffect(() => {
+    if (message) {
+      const timer = setTimeout(() => setMessage(""), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [message]);
 
   if (loading)
     return (
@@ -255,6 +283,17 @@ export default function AdminDashboard() {
                 )}
               </button>
             ))}
+            
+            <button
+              onClick={handleSyncMovies}
+              disabled={isSyncing}
+              className="group flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-300 text-neutral-400 hover:bg-white/5 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed border border-white/5 bg-black/20 font-semibold text-sm"
+            >
+              <div className="flex items-center gap-3">
+                <RefreshCw size={18} className={isSyncing ? "animate-spin text-red-500" : "opacity-70 group-hover:opacity-100 text-red-500"} />
+                <span>{isSyncing ? "Syncing..." : "Movie Sync"}</span>
+              </div>
+            </button>
           </nav>
 
           <div className="mt-auto pt-8 border-t border-white/5">
@@ -300,9 +339,22 @@ export default function AdminDashboard() {
             ))}
           </div>
 
+          {/* Floating Toast Notification */}
           {message && (
-            <div className="mb-8 p-4 bg-red-600 text-white font-bold text-center rounded-2xl shadow-xl shadow-red-600/20 animate-slideDown">
-              {message}
+            <div className="fixed bottom-10 right-10 z-[100] flex items-center gap-3 p-4 bg-neutral-900 border border-white/10 rounded-2xl shadow-2xl animate-fadeIn max-w-sm">
+              <div className="min-w-10 min-h-10 rounded-full bg-red-600/20 flex items-center justify-center">
+                <Activity size={18} className="text-red-500 animate-pulse" />
+              </div>
+              <p className="text-sm font-semibold text-white leading-snug">
+                {message.replace(/✅ |❌ /g, '')}
+              </p>
+              <button 
+                onClick={() => setMessage("")}
+                className="ml-2 text-neutral-500 hover:text-white transition-colors p-1"
+                aria-label="Close"
+              >
+                <X size={16} />
+              </button>
             </div>
           )}
 
